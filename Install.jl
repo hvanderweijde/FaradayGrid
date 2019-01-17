@@ -1,0 +1,6 @@
+Pkg.add("JuMP")
+Pkg.add("Gurobi")
+Pkg.add("Complementarity")
+Pkg.add("Taro")
+Pkg.add("Plots")
+Pkg.add("DataFrames")
