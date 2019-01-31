@@ -40,10 +40,10 @@ function ProcessData(input_data)
         global location =          Array(generator_data[3])
         fuelcost_raw=       Array(generator_data[4])
         capacity_raw=       Array(generator_data[5])
-        variableoutput_raw= Array(generator_data[6])
+        global variableoutput_raw= Array(generator_data[6])
         uprate_raw=         Array(generator_data[7])
         downrate_raw=       Array(generator_data[8])
-    availability_raw = Array(Taro.readxl(input_data, "Availability", "B2:P8762"; header=false))
+    global availability_raw = Array(Taro.readxl(input_data, "Availability", "B2:P8762"; header=false))
     load_data = Taro.readxl(input_data, "Load", "A2:AD8762"; header=false)
         global timeperiods =       Array(load_data[1])
         demand_raw =        Array(load_data[2:30])
@@ -53,22 +53,30 @@ function ProcessData(input_data)
     global maxflow =       Dict(zip(lines,maxflow_raw))
     global fuelcost =      Dict(zip(generators,fuelcost_raw))
     global capacity =      Dict(zip(generators,capacity_raw))
+    global variableoutput= Dict(zip(generators,variableoutput_raw))
     global uprate =        Dict(zip(generators,uprate_raw))
     global downrate =      Dict(zip(generators,downrate_raw))
-    global availability=   Dict()
-        for i in 1:length(generators), j in 1:length(timeperiods)
-            n=1
-            if variableoutput_raw[i]==1
-                availability[generators[i],timeperiods[j]]=availability_raw[j,n]
-                n+=1
-            else
-                availability[generators[i],timeperiods[j]]=1
-            end
-        end
+
     global demand=Dict()
         for i in 1:length(buses), j in 1:length(timeperiods)
             demand[buses[i],timeperiods[j]]=demand_raw[j,i]
         end
+
+    global variablegens=[]
+        for g in generators
+            if variableoutput[g]==1
+                push!(variablegens, g)
+            end
+        end
+
+    global availability = Dict()
+        for g in 1:length(generators), j in 1:length(timeperiods)
+                availability[generators[g],timeperiods[j]]=1
+        end
+        for g in 1:length(variablegens), j in 1:length(timeperiods)
+                        availability[variablegens[g],timeperiods[j]]=availability_raw[j,g]
+        end
+
     # generate additional dictionaries
     global firms =         unique(owner)                                  #generate list of unique owners using index f
     global gensowned =     Dict()                                         #returns list of generators owned by a particular owner
